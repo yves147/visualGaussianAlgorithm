@@ -18,6 +18,7 @@ class GaussianUtilities {
             final String os = System.getProperty("os.name");
 
             if (os.contains("Windows")) {
+                //TODO: check compatibility on windows
                 Runtime.getRuntime().exec("cls");
             } else {
                 System.out.print("\033\143");
@@ -40,24 +41,34 @@ class GaussianUtilities {
 class GaussianSolvedItemList {
     List<GaussianSolvedItem> rawList = new ArrayList<GaussianSolvedItem>();
 
-    GaussianLine visualStep(GaussianLine comparativeGaussianLine){
-        
+    
+
+    GaussianLine visualStep(GaussianLine comparativeGaussianLine) {
+        //TODO: implement interactive fill-in of variable values
+        return new GaussianLine();
     }
 
-    GaussianLine calcStep(GaussianLine comparativeGaussianLine){
-        
+    GaussianLine calcStep(GaussianLine comparativeGaussianLine) {
+        GaussianLine resultLine = new GaussianLine();
+        double[] resultValues = new double[resultLine.values.length];
+        for (int i = 0; i < comparativeGaussianLine.values.length; i++) {
+            //TODO: check for existing value in item list to set values
+        }
+        resultLine.setValues(resultValues);
+        return resultLine;
     }
 
-    void addSolvedItem(GaussianSolvedItem item){
+    void addSolvedItem(GaussianSolvedItem item) {
         rawList.add(item);
     }
 }
 
+// pure object-class
 class GaussianSolvedItem {
     int index;
     double value;
 
-    static GaussianSolvedItem build(int i, double v){
+    static GaussianSolvedItem build(int i, double v) {
         GaussianSolvedItem t = new GaussianSolvedItem();
         t.index = i;
         t.value = v;
@@ -65,6 +76,7 @@ class GaussianSolvedItem {
     }
 }
 
+// handling last part of simple linear equation solving: ?xC * x = ?xV
 class GaussianAlignment {
     double xC = 0.0;
     double xV = 0.0;
@@ -80,6 +92,7 @@ class GaussianAlignment {
     }
 }
 
+// handling "higher" steps in linear equation solving
 class GaussianAlignmentBuilder {
     GaussianLine preparableAlignmentLine;
     GaussianSolvedItemList preparedSolvedItemList;
@@ -95,10 +108,11 @@ class GaussianAlignmentBuilder {
 
     double purgeZeros() {
         for (int i = 0; i < this.preparableAlignmentLine.values.length; i++) {
-            if (this.preparableAlignmentLine.values[i] != 0){
+            if (this.preparableAlignmentLine.values[i] != 0) {
                 return this.preparableAlignmentLine.values[i];
-            };
+            }
         }
+        return 0.0;
     }
 
     public void setPreparedSolvedItemList(GaussianSolvedItemList preparedSolvedItemList) {
@@ -254,19 +268,19 @@ public class GaussianAlgorithm {
         testLine1.setValues(testLine1Values);
         testLine1.setResult(12.0);
 
-        testLine1.prettyPrint(4);
+        testLine1.prettyPrint();
 
         GaussianLine testLine2 = new GaussianLine();
         double[] testLine2Values = { 1.0, 3.0, 1.0 };
         testLine2.setValues(testLine2Values);
         testLine2.setResult(4.0);
 
-        testLine2.prettyPrint(4);
+        testLine2.prettyPrint();
 
         GaussianLine subLine = testLine2.multiplyBy(2.0 / 1.0);
         GaussianLine resultLine = testLine1.sub(subLine);
 
-        resultLine.prettyPrint(4);
+        resultLine.prettyPrint();
     }
 
 }
