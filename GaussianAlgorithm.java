@@ -245,6 +245,15 @@ class GaussianLine {
         prettyPrint(0);
     }
 
+    void empty(int i) {
+        double[] vals = new double[i];
+        for (int x = 0; x < i; x++) {
+            vals[x] = 0;
+        }
+        this.setValues(vals);
+        this.setResult(0);
+    }
+
     boolean isLast() {
         boolean _result = true;
         for (int i = 1; i < this.values.length; i++) {
@@ -263,7 +272,7 @@ class GaussianSystem {
     GaussianLine[] lines;
     GaussianSystemInput input;
 
-    int printIndex = 0;
+    int printIndex = -1;
 
     void init() {
         input = new GaussianSystemInput();
@@ -272,7 +281,7 @@ class GaussianSystem {
 
     void setLineCount(int i) {
         lines = new GaussianLine[i];
-        //System.out.print("i=" + i + ";len=" + lines.length);
+        // System.out.print("i=" + i + ";len=" + lines.length);
     }
 
     void setCoords(int x, int y, double v) {
@@ -309,14 +318,22 @@ class GaussianSystem {
             this.lines[i].print();
         }
     }
+
+    void empty() {
+        for (int y = 0; y < this.lines.length; y++) {
+            this.lines[y] = new GaussianLine();
+            this.lines[y].empty(this.lines.length);
+        }
+    }
 }
 
 class GaussianSystemInput {
     int lineCount = 0;
     int varCount = 0;
-    Scanner scanner;
 
+    Scanner scanner;
     GaussianSystem parent;
+    GaussianLine bufferLine = new GaussianLine();
 
     public void setParent(GaussianSystem parent) {
         this.parent = parent;
@@ -333,36 +350,45 @@ class GaussianSystemInput {
         GaussianUtilities.clearConsole();
     }
 
-    void receiveLine() {
-        for (int x = 0; x < this.varCount; x++) {
+    void receiveLine(int y) {
+        System.out.println("NEW LINE");
+        bufferLine.empty(this.varCount);
+        double[] vals = new double[this.lineCount];
+        bufferLine.setLoadedLen(0);
+        for (int x = 0; x < this.varCount + 1; x++) {
+            GaussianUtilities.clearConsole();
+            bufferLine.setLoadedLen(bufferLine.loadedLen + 1);
+            this.bufferPrint();
+            System.out.print("\nx = ");
+            if (this.varCount == x) {
+                parent.lines[y].setResult(scanner.nextDouble());
+            } else {
+                vals[x] = scanner.nextDouble();
+                System.out.println(vals);
+                double[] shortVals = new double[this.varCount];
+                for (int s = 0; s < this.varCount; s++) {
+                    if(s <= x) {
+                        shortVals[s] = vals[x];
+                    } else {
+                        shortVals[s] = 0;
+                    }
+                }
+                bufferLine.setValues(shortVals);
+            }
         }
+        parent.lines[y].setValues(vals);
     }
 
-    void fakePrint() {
-        parent.prettyPrint();
+    void bufferPrint() {
+        this.bufferLine.prettyPrint();
     }
 
     void start() {
         this.receiveStandardKnowledge();
         parent.setLineCount(this.lineCount);
-        this.initEmpty();
-        GaussianLine testLine = new GaussianLine();
-        double[] vals = { 2, 2, -4 };
-        testLine.setValues(vals);
-        testLine.setResult(12);
-        parent.lines[0] = testLine;
-        parent.prettyPrint();
-    }
-
-    void initEmpty() {
+        parent.empty();
         for (int y = 0; y < this.lineCount; y++) {
-            parent.lines[y] = new GaussianLine();
-            double[] vals = new double[this.varCount];
-            for (int x = 0; x < this.varCount; x++) {
-                vals[x] = 0;
-            }
-            parent.lines[y].setValues(vals);
-            parent.lines[y].setResult(0);
+            this.receiveLine(y);
         }
     }
 }
