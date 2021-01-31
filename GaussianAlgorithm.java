@@ -13,17 +13,14 @@ import java.util.Scanner;
 
 class GaussianUtilities {
     static void clearConsole() {
-        try {
-            final String os = System.getProperty("os.name");
-
-            if (os.contains("Windows")) {
-                // TODO: check compatibility on windows
-                Runtime.getRuntime().exec("cls");
-            } else {
-                System.out.print("\033\143");
-            }
-        } catch (final Exception e) {
-        }
+        /*
+         * try { final String os = System.getProperty("os.name");
+         * 
+         * if (os.contains("Windows")) { // TODO: check compatibility on windows
+         * Runtime.getRuntime().exec("cls"); } else { System.out.print("\033\143"); } }
+         * catch (final Exception e) { }
+         */
+        System.out.print("\n\nDEBUG CLEAR CONSOLE\n\n");
     }
 
     static void printToDifference(int diff, String val) {
@@ -123,8 +120,6 @@ class GaussianAlignmentBuilder {
     GaussianLine preparableAlignmentLine;
     GaussianSolvedItemList preparedSolvedItemList;
 
-    double unknownCount = 0.0;
-
     boolean fast = true;
 
     void setPreparableAlignmentLine(GaussianLine preparableAlignmentLine) {
@@ -167,12 +162,19 @@ class GaussianLine {
     double[] values;
     double result;
 
+    int loadedLen = 0;
+
     void setValues(double[] newValues) {
         this.values = newValues;
+        loadedLen = this.values.length + 1;
     }
 
     void setResult(double res) {
         this.result = res;
+    }
+
+    public void setLoadedLen(int loadedLen) {
+        this.loadedLen = loadedLen;
     }
 
     GaussianLine multiplyBy(double multiplier) {
@@ -207,9 +209,20 @@ class GaussianLine {
     }
 
     void prettyPrint(int biggestLen) {
+        boolean firstVar = true;
         String[] prettyItems = new String[this.values.length];
         for (int i = 0; i < this.values.length; i++) {
-            String strVal = String.valueOf(this.values[i]);
+            String strVal = "";
+            if (i > this.loadedLen) {
+                if (firstVar) {
+                    firstVar = false;
+                    strVal = " x ";
+                } else {
+                    strVal = " ? ";
+                }
+            } else {
+                strVal = String.valueOf(this.values[i]);
+            }
             prettyItems[i] = strVal;
             if (strVal.length() > biggestLen)
                 biggestLen = strVal.length();
@@ -221,7 +234,11 @@ class GaussianLine {
                 System.out.print("  ");
             }
         }
-        System.out.print(" | " + this.result + "\n");
+        String resultStr = String.valueOf(this.result);
+        if (this.values.length == this.loadedLen) {
+            resultStr = "x";
+        }
+        System.out.print(" | " + resultStr + "\n");
     }
 
     void prettyPrint() {
@@ -242,10 +259,20 @@ class GaussianLine {
 
 class GaussianSystem {
     boolean hold = false;
+
     GaussianLine[] lines;
+    GaussianSystemInput input;
+
+    int printIndex = 0;
+
+    void init() {
+        input = new GaussianSystemInput();
+        input.setParent(this);
+    }
 
     void setLineCount(int i) {
         lines = new GaussianLine[i];
+        //System.out.print("i=" + i + ";len=" + lines.length);
     }
 
     void setCoords(int x, int y, double v) {
@@ -270,42 +297,112 @@ class GaussianSystem {
             return Math.E;
         }
     }
+
+    void prettyPrint() {
+        for (int i = 0; i < this.lines.length && i <= this.printIndex; i++) {
+            this.lines[i].prettyPrint();
+        }
+    }
+
+    void print() {
+        for (int i = 0; i < this.lines.length && i <= this.printIndex; i++) {
+            this.lines[i].print();
+        }
+    }
 }
 
 class GaussianSystemInput {
     int lineCount = 0;
     int varCount = 0;
+    Scanner scanner;
 
-    void setLineCount(int lines) {
-        this.lineCount = lines;
+    GaussianSystem parent;
+
+    public void setParent(GaussianSystem parent) {
+        this.parent = parent;
     }
 
-    void setVarCount(int vars) {
-        this.varCount = vars;
+    public void setScanner(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
+    void receiveStandardKnowledge() {
+        System.out.print("Geben Sie die Anzahl der Zeilen/Variablen der Gauss-Matrix an: ");
+        this.lineCount = scanner.nextInt();
+        this.varCount = this.lineCount;
+        GaussianUtilities.clearConsole();
+    }
+
+    void receiveLine() {
+        for (int x = 0; x < this.varCount; x++) {
+        }
+    }
+
+    void fakePrint() {
+        parent.prettyPrint();
+    }
+
+    void start() {
+        this.receiveStandardKnowledge();
+        parent.setLineCount(this.lineCount);
+        this.initEmpty();
+        GaussianLine testLine = new GaussianLine();
+        double[] vals = { 2, 2, -4 };
+        testLine.setValues(vals);
+        testLine.setResult(12);
+        parent.lines[0] = testLine;
+        parent.prettyPrint();
+    }
+
+    void initEmpty() {
+        for (int y = 0; y < this.lineCount; y++) {
+            parent.lines[y] = new GaussianLine();
+            double[] vals = new double[this.varCount];
+            for (int x = 0; x < this.varCount; x++) {
+                vals[x] = 0;
+            }
+            parent.lines[y].setValues(vals);
+            parent.lines[y].setResult(0);
+        }
     }
 }
 
 public class GaussianAlgorithm {
 
     public static void main(String[] args) {
-        GaussianLine testLine1 = new GaussianLine();
-        double[] testLine1Values = { 2.0, 2.0, -4.0 };
-        testLine1.setValues(testLine1Values);
-        testLine1.setResult(12.0);
 
-        testLine1.prettyPrint();
+        // GaussianUtilities.clearConsole();
+        System.out.println("GAUSS-ALGORITHMUS IN JAVA");
+        System.out.println("-------------------------");
+        System.out.println("Es wird eine lösbare und saubere Gauss-Matrix vorrausgesetzt.");
 
-        GaussianLine testLine2 = new GaussianLine();
-        double[] testLine2Values = { 1.0, 3.0, 1.0 };
-        testLine2.setValues(testLine2Values);
-        testLine2.setResult(4.0);
+        Scanner scanner = new Scanner(System.in);
+        GaussianSystem system = new GaussianSystem();
+        system.init();
+        system.input.setScanner(scanner);
+        system.input.start();
 
-        testLine2.prettyPrint();
+        System.out.print("\n");
+        scanner.close();
 
-        GaussianLine subLine = testLine2.multiplyBy(2.0 / 1.0);
-        GaussianLine resultLine = testLine1.sub(subLine);
-
-        resultLine.prettyPrint();
+        /*
+         * GaussianLine testLine1 = new GaussianLine(); double[] testLine1Values = {
+         * 2.0, 2.0, -4.0 }; testLine1.setValues(testLine1Values);
+         * testLine1.setResult(12.0);
+         * 
+         * testLine1.prettyPrint();
+         * 
+         * GaussianLine testLine2 = new GaussianLine(); double[] testLine2Values = {
+         * 1.0, 3.0, 1.0 }; testLine2.setValues(testLine2Values);
+         * testLine2.setResult(4.0);
+         * 
+         * testLine2.prettyPrint();
+         * 
+         * GaussianLine subLine = testLine2.multiplyBy(2.0 / 1.0); GaussianLine
+         * resultLine = testLine1.sub(subLine);
+         * 
+         * resultLine.prettyPrint();
+         */
     }
 
 }
