@@ -9,7 +9,6 @@ x1 = 0; x2 = 2; x3 = -2;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 class GaussianUtilities {
@@ -18,7 +17,7 @@ class GaussianUtilities {
             final String os = System.getProperty("os.name");
 
             if (os.contains("Windows")) {
-                //TODO: check compatibility on windows
+                // TODO: check compatibility on windows
                 Runtime.getRuntime().exec("cls");
             } else {
                 System.out.print("\033\143");
@@ -39,27 +38,54 @@ class GaussianUtilities {
 }
 
 class GaussianSolvedItemList {
+    int index = 0;
     List<GaussianSolvedItem> rawList = new ArrayList<GaussianSolvedItem>();
 
-    
-
     GaussianLine visualStep(GaussianLine comparativeGaussianLine) {
-        //TODO: implement interactive fill-in of variable values
+        // TODO: implement interactive fill-in of variable values
         return new GaussianLine();
     }
 
-    GaussianLine calcStep(GaussianLine comparativeGaussianLine) {
-        GaussianLine resultLine = new GaussianLine();
-        double[] resultValues = new double[resultLine.values.length];
+    double calcStep(GaussianLine comparativeGaussianLine) {
+        double toBeShifted = 0;
         for (int i = 0; i < comparativeGaussianLine.values.length; i++) {
-            //TODO: check for existing value in item list to set values
+            // TODO: check for existing value in item list to set values
+            if (this.hasSolution(i)) {
+                // factor_z * value_z
+                double t = this.getSolution(i) * comparativeGaussianLine.values[i];
+                toBeShifted += t;
+            }
         }
-        resultLine.setValues(resultValues);
-        return resultLine;
+        return toBeShifted;
+    }
+
+    boolean hasSolution(int i) {
+        boolean _result = false;
+        for (int _i = 0; _i < this.rawList.size(); _i++) {
+            if (rawList.get(_i).index == i)
+                return true;
+        }
+        return _result;
+    }
+
+    double getSolution(int i) {
+        for (int _i = 0; _i < this.rawList.size(); _i++) {
+            if (rawList.get(_i).index == i)
+                return rawList.get(_i).value;
+        }
+        return 0.0;
     }
 
     void addSolvedItem(GaussianSolvedItem item) {
         rawList.add(item);
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public void setRawList(List<GaussianSolvedItem> rawList) {
+        this.rawList = rawList;
     }
 }
 
@@ -96,7 +122,6 @@ class GaussianAlignment {
 class GaussianAlignmentBuilder {
     GaussianLine preparableAlignmentLine;
     GaussianSolvedItemList preparedSolvedItemList;
-    HashMap<Integer, Double> solvedElements = new HashMap<Integer, Double>();
 
     double unknownCount = 0.0;
 
@@ -120,7 +145,7 @@ class GaussianAlignmentBuilder {
     }
 
     double fillKnown() {
-        this.preparedSolvedItemList.calculate(preparableAlignmentLine);
+        return this.preparedSolvedItemList.calcStep(preparableAlignmentLine);
     }
 
     GaussianAlignment build() {
@@ -130,7 +155,7 @@ class GaussianAlignmentBuilder {
             leftSideV = this.purgeZeros();
         } else {
             double filled = this.fillKnown();
-            leftSideV = this.unknownCount;
+            leftSideV = this.preparableAlignmentLine.values[preparedSolvedItemList.index];
             rightSideV -= filled;
         }
         newAlignment.setParticipants(leftSideV, rightSideV);
