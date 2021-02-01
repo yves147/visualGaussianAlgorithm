@@ -213,7 +213,7 @@ class GaussianLine {
         System.out.print("r=" + this.result + "\n");
     }
 
-    void prettyPrint(int biggestLen) {
+    int prettyPrint(int biggestLen) {
         boolean firstVar = true;
         String[] prettyItems = new String[this.values.length];
         for (int i = 0; i < this.values.length; i++) {
@@ -246,10 +246,11 @@ class GaussianLine {
             resultStr = String.valueOf(this.result);
         }
         System.out.print(" | " + resultStr + "\n");
+        return biggestLen;
     }
 
-    void prettyPrint() {
-        prettyPrint(0);
+    int prettyPrint() {
+        return prettyPrint(0);
     }
 
     void empty(int i) {
@@ -319,10 +320,18 @@ class GaussianSystem {
         }
     }
 
-    void prettyPrint() {
+    int prettyPrint(int a) {
+        int m = 0;
         for (int i = 0; i < this.lines.length && i <= this.printIndex; i++) {
-            this.lines[i].prettyPrint();
+            int _m = this.lines[i].prettyPrint(a);
+            if (_m > m)
+                m = _m;
         }
+        return m;
+    }
+
+    int prettyPrint() {
+        return prettyPrint(0);
     }
 
     void print() {
@@ -343,9 +352,17 @@ class GaussianSystemInput {
     int lineCount = 0;
     int varCount = 0;
 
+    int cW = 0; // max character width; biggestLen
+
     Scanner scanner;
     GaussianSystem parent;
     GaussianLine bufferLine = new GaussianLine();
+
+    void setEffectiveCW(int newCW) {
+        if (newCW > this.cW) {
+            this.cW = newCW;
+        }
+    }
 
     public void setParent(GaussianSystem parent) {
         this.parent = parent;
@@ -372,7 +389,11 @@ class GaussianSystemInput {
             GaussianUtilities.clearConsole();
             internLoadIndex++;
             bufferLine.setLoadedLen(internLoadIndex);
-            parent.prettyPrint();
+            this.bufferPrint();
+            // seams useless but in real changes the effective CW if value change and by
+            // this is useful
+            GaussianUtilities.clearConsole();
+            this.setEffectiveCW(parent.prettyPrint(this.cW));
             this.bufferPrint();
             System.out.print("\nx = ");
             if (this.varCount == x) {
@@ -394,7 +415,7 @@ class GaussianSystemInput {
     }
 
     void bufferPrint() {
-        this.bufferLine.prettyPrint();
+        this.setEffectiveCW(this.bufferLine.prettyPrint(this.cW));
     }
 
     void start() {
@@ -410,7 +431,7 @@ class GaussianSystemInput {
             parent.setPrintIndex(internPrintIndex);
         }
         GaussianUtilities.clearConsole();
-        parent.prettyPrint();
+        parent.prettyPrint(this.cW);
     }
 }
 
