@@ -1,4 +1,4 @@
 *.sh
 *.class
 *.html
-output/*
+output
