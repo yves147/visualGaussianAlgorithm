@@ -85,6 +85,7 @@ class GaussianSolvedItemList {
         for (int i = 0; i < this.rawList.size(); i++) {
             System.out.print("x" + this.rawList.get(i).index + "=" + this.rawList.get(i).value + ";");
         }
+        System.out.print("\n");
     }
 
     void setIndex(int index) {
@@ -146,6 +147,7 @@ class GaussianAlignmentBuilder {
     }
 
     public void setPreparedSolvedItemList(GaussianSolvedItemList preparedSolvedItemList) {
+        this.fast = false;
         this.preparedSolvedItemList = preparedSolvedItemList;
     }
 
@@ -160,7 +162,7 @@ class GaussianAlignmentBuilder {
             leftSideV = this.purgeZeros();
         } else {
             double filled = this.fillKnown();
-            leftSideV = this.preparableAlignmentLine.values[preparedSolvedItemList.index];
+            leftSideV = this.preparableAlignmentLine.values[preparedSolvedItemList.index + 1];
             rightSideV -= filled;
         }
         newAlignment.setParticipants(leftSideV, rightSideV);
@@ -380,6 +382,10 @@ class GaussianSystem {
         for (int i = this.lines.length - 2; i >= 0; i--) {
             GaussianLine line = this.lines[i];
             GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
+            System.out.println("using line");
+            line.print();
+            System.out.println("using solved");
+            this.solved.print();
             builder.setPreparableAlignmentLine(line);
             builder.setPreparedSolvedItemList(this.solved);
             GaussianAlignment alignment = builder.build();
