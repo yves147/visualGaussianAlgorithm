@@ -11,7 +11,14 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Extra utilities in global instance
+ */
 class GaussianUtilities {
+
+    // #region AUTO_META
+    // #endregion
+
     static void clearConsole() {
 
         try {
@@ -39,9 +46,17 @@ class GaussianUtilities {
     }
 }
 
+/**
+ * List of GaussianSolvedItems
+ * 
+ * Class to manage solved variables
+ */
 class GaussianSolvedItemList {
     int index = 0;
     List<GaussianSolvedItem> rawList = new ArrayList<GaussianSolvedItem>();
+
+    // #region AUTO_META
+    // #endregion
 
     GaussianLine visualStep(GaussianLine comparativeGaussianLine) {
         // TODO: implement interactive fill-in of variable values
@@ -97,10 +112,22 @@ class GaussianSolvedItemList {
     }
 }
 
-// pure object-class
+/**
+ * Class to manage a single instance of a solved variable
+ */
 class GaussianSolvedItem {
     int index;
     double value;
+
+    // #region AUTO_META
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+    // #endregion
 
     static GaussianSolvedItem build(int i, double v) {
         GaussianSolvedItem t = new GaussianSolvedItem();
@@ -110,10 +137,22 @@ class GaussianSolvedItem {
     }
 }
 
-// handling last part of simple linear equation solving: ?xC * x = ?xV
+/**
+ * Handling last part of simple linear equation (LGS) solving: ZxC * x = ZxV
+ */
 class GaussianAlignment {
     double xC = 0.0;
     double xV = 0.0;
+
+    // #region AUTO_META
+    public void setxC(double xC) {
+        this.xC = xC;
+    }
+
+    public void setxV(double xV) {
+        this.xV = xV;
+    }
+    // #endregion
 
     void setParticipants(double count, double value) {
         this.xC = count;
@@ -126,12 +165,20 @@ class GaussianAlignment {
     }
 }
 
-// handling "higher" steps in linear equation solving
+/**
+ * Handling higher steps in linear equation (LAS) solving
+ */
 class GaussianAlignmentBuilder {
     GaussianLine preparableAlignmentLine;
     GaussianSolvedItemList preparedSolvedItemList;
 
     boolean fast = true;
+
+    // #region AUTO_META
+    public void setFast(boolean fast) {
+        this.fast = fast;
+    }
+    // #endregion
 
     void setPreparableAlignmentLine(GaussianLine preparableAlignmentLine) {
         this.preparableAlignmentLine = preparableAlignmentLine;
@@ -170,11 +217,17 @@ class GaussianAlignmentBuilder {
     }
 }
 
+/**
+ * Pure line-based data-store class to save information about a single row
+ */
 class GaussianLine {
     double[] values;
     double result;
 
     int loadedLen = 0;
+
+    // #region AUTO_META
+    // #endregion
 
     void setValues(double[] newValues) {
         this.values = newValues;
@@ -282,6 +335,9 @@ class GaussianLine {
     }
 }
 
+/**
+ * Process managment class to obtain over the process
+ */
 class GaussianSystem {
     boolean hold = false;
 
@@ -294,6 +350,32 @@ class GaussianSystem {
     int cW = 0;
 
     int printIndex = -1;
+
+    // #region AUTO_META
+    public void setHold(boolean hold) {
+        this.hold = hold;
+    }
+
+    public void setInput(GaussianSystemInput input) {
+        this.input = input;
+    }
+
+    public void setLines(GaussianLine[] lines) {
+        this.lines = lines;
+    }
+
+    public void setSolveIndex(int solveIndex) {
+        this.solveIndex = solveIndex;
+    }
+
+    public void setSolved(GaussianSolvedItemList solved) {
+        this.solved = solved;
+    }
+
+    public void setcW(int cW) {
+        this.cW = cW;
+    }
+    // #endregion
 
     void init() {
         input = new GaussianSystemInput();
@@ -382,10 +464,6 @@ class GaussianSystem {
         for (int i = this.lines.length - 2; i >= 0; i--) {
             GaussianLine line = this.lines[i];
             GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
-            System.out.println("using line");
-            line.print();
-            System.out.println("using solved");
-            this.solved.print();
             builder.setPreparableAlignmentLine(line);
             builder.setPreparedSolvedItemList(this.solved);
             GaussianAlignment alignment = builder.build();
@@ -421,6 +499,9 @@ class GaussianSystem {
     }
 }
 
+/**
+ * Input System to create the GaussianSystem class
+ */
 class GaussianSystemInput {
     int lineCount = 0;
     int varCount = 0;
@@ -430,6 +511,24 @@ class GaussianSystemInput {
     Scanner scanner;
     GaussianSystem parent;
     GaussianLine bufferLine = new GaussianLine();
+
+    // #region AUTO_META
+    public void setBufferLine(GaussianLine bufferLine) {
+        this.bufferLine = bufferLine;
+    }
+
+    public void setLineCount(int lineCount) {
+        this.lineCount = lineCount;
+    }
+
+    public void setVarCount(int varCount) {
+        this.varCount = varCount;
+    }
+
+    public void setcW(int cW) {
+        this.cW = cW;
+    }
+    // #endregion
 
     void setEffectiveCW(int newCW) {
         if (newCW > this.cW) {
@@ -508,7 +607,13 @@ class GaussianSystemInput {
     }
 }
 
+/**
+ * Main-Class
+ */
 public class GaussianAlgorithm {
+
+    // #region AUTO_META
+    // #endregion
 
     public static void main(String[] args) {
 
@@ -525,25 +630,6 @@ public class GaussianAlgorithm {
 
         System.out.print("\n");
         scanner.close();
-
-        /*
-         * GaussianLine testLine1 = new GaussianLine(); double[] testLine1Values = {
-         * 2.0, 2.0, -4.0 }; testLine1.setValues(testLine1Values);
-         * testLine1.setResult(12.0);
-         * 
-         * testLine1.prettyPrint();
-         * 
-         * GaussianLine testLine2 = new GaussianLine(); double[] testLine2Values = {
-         * 1.0, 3.0, 1.0 }; testLine2.setValues(testLine2Values);
-         * testLine2.setResult(4.0);
-         * 
-         * testLine2.prettyPrint();
-         * 
-         * GaussianLine subLine = testLine2.multiplyBy(2.0 / 1.0); GaussianLine
-         * resultLine = testLine1.sub(subLine);
-         * 
-         * resultLine.prettyPrint();
-         */
     }
 
 }
