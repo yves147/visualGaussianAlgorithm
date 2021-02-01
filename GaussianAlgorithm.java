@@ -51,7 +51,6 @@ class GaussianSolvedItemList {
     double calcStep(GaussianLine comparativeGaussianLine) {
         double toBeShifted = 0;
         for (int i = 0; i < comparativeGaussianLine.values.length; i++) {
-            // TODO: check for existing value in item list to set values
             if (this.hasSolution(i)) {
                 // factor_z * value_z
                 double t = this.getSolution(i) * comparativeGaussianLine.values[i];
@@ -82,11 +81,17 @@ class GaussianSolvedItemList {
         rawList.add(item);
     }
 
-    public void setIndex(int index) {
+    void print() {
+        for (int i = 0; i < this.rawList.size(); i++) {
+            System.out.print("x" + this.rawList.get(i).index + "=" + this.rawList.get(i).value + ";");
+        }
+    }
+
+    void setIndex(int index) {
         this.index = index;
     }
 
-    public void setRawList(List<GaussianSolvedItem> rawList) {
+    void setRawList(List<GaussianSolvedItem> rawList) {
         this.rawList = rawList;
     }
 }
@@ -281,7 +286,7 @@ class GaussianSystem {
     GaussianLine[] lines;
     GaussianSystemInput input;
 
-    GaussianSolvedItemList solved;
+    GaussianSolvedItemList solved = new GaussianSolvedItemList();
 
     int solveIndex = 0;
     int cW = 0;
@@ -362,7 +367,7 @@ class GaussianSystem {
         GaussianLine lastLine = this.lines[this.lines.length - 1];
         GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
         builder.setPreparableAlignmentLine(lastLine);
-        // builder: automatic detection of fast mode bc result set is not given
+        // INFO: automatic detection of fast mode bc result set is not given
         GaussianAlignment alignment = builder.build();
         double alignmentResult = alignment.solve();
         GaussianSolvedItem solvedItem = GaussianSolvedItem.build(this.lines.length - 1, alignmentResult);
@@ -372,7 +377,6 @@ class GaussianSystem {
     void solute() {
         System.out.println("SOLUTE!");
         this.solveFast();
-        // test for solving first var
         for (int i = this.lines.length - 2; i >= 0; i--) {
             GaussianLine line = this.lines[i];
             GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
@@ -383,6 +387,7 @@ class GaussianSystem {
             this.solved.addSolvedItem(solvedItem);
         }
         System.out.println("SOLVE ITEMS LEN=" + this.solved.rawList.size());
+        this.solved.print();
     }
 
     void ready() {
