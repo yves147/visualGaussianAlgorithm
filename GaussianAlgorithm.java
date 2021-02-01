@@ -44,6 +44,11 @@ class GaussianUtilities {
     static void printToDifference(int diff) {
         printToDifference(diff, " ");
     }
+
+    static void wait(Scanner scanner){
+        scanner.nextLine();
+        scanner.nextLine();
+    }
 }
 
 /**
@@ -351,6 +356,8 @@ class GaussianSystem {
 
     int printIndex = -1;
 
+    Scanner scanner;
+
     // #region AUTO_META
     public void setHold(boolean hold) {
         this.hold = hold;
@@ -376,6 +383,10 @@ class GaussianSystem {
         this.cW = cW;
     }
     // #endregion
+
+    void setScanner(Scanner scanner) {
+        this.scanner = scanner;
+    }
 
     void init() {
         input = new GaussianSystemInput();
@@ -442,7 +453,7 @@ class GaussianSystem {
     }
 
     void effectivePrint() {
-        this.cW = this.prettyPrint(this.cW);
+        this.setcW(this.prettyPrint(this.cW));
         GaussianUtilities.clearConsole();
         this.prettyPrint(this.cW);
     }
@@ -451,9 +462,10 @@ class GaussianSystem {
         GaussianLine lastLine = this.lines[this.lines.length - 1];
         GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
         builder.setPreparableAlignmentLine(lastLine);
-        // INFO: automatic detection of fast mode bc result set is not given
+        // INFO: automatic detection of fast mode since result set is not given
         GaussianAlignment alignment = builder.build();
         double alignmentResult = alignment.solve();
+        System.out.println("ALIGN RES: " + alignmentResult);
         GaussianSolvedItem solvedItem = GaussianSolvedItem.build(this.lines.length - 1, alignmentResult);
         this.solved.addSolvedItem(solvedItem);
     }
@@ -466,6 +478,10 @@ class GaussianSystem {
             GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
             builder.setPreparableAlignmentLine(line);
             builder.setPreparedSolvedItemList(this.solved);
+            System.out.print("SOLVE LINE ");
+            line.print();
+            System.out.print("SOLVED ITEMS ");
+            this.solved.print();
             GaussianAlignment alignment = builder.build();
             GaussianSolvedItem solvedItem = GaussianSolvedItem.build(i, alignment.solve());
             this.solved.addSolvedItem(solvedItem);
@@ -483,15 +499,16 @@ class GaussianSystem {
                     this.solute();
                     return;
                 }
-                this.lines[r].prettyPrint();
-                this.lines[y].prettyPrint();
-                System.out.println("-");
-                this.lines[r].prettyPrint();
+                // this.lines[r].prettyPrint();
+                // this.lines[y].prettyPrint();
+                // System.out.println("-");
+                // this.lines[r].prettyPrint();
                 GaussianLine nL = this.lines[y].sub(this.lines[r]);
                 nL.prettyPrint();
                 this.lines[r] = nL;
             }
             System.out.println("---------");
+            GaussianUtilities.wait(this.scanner);
             this.effectivePrint();
         }
         this.lines[this.lines.length - 1].isLast();
@@ -508,7 +525,6 @@ class GaussianSystemInput {
 
     int cW = 0; // max character width; biggestLen
 
-    Scanner scanner;
     GaussianSystem parent;
     GaussianLine bufferLine = new GaussianLine();
 
@@ -540,13 +556,9 @@ class GaussianSystemInput {
         this.parent = parent;
     }
 
-    void setScanner(Scanner scanner) {
-        this.scanner = scanner;
-    }
-
     void receiveStandardKnowledge() {
         System.out.print("Geben Sie die Anzahl der Zeilen/Variablen der Gauss-Matrix an: ");
-        this.lineCount = scanner.nextInt();
+        this.lineCount = parent.scanner.nextInt();
         this.varCount = this.lineCount;
         GaussianUtilities.clearConsole();
     }
@@ -568,9 +580,9 @@ class GaussianSystemInput {
             this.bufferPrint();
             System.out.print("\nx = ");
             if (this.varCount == x) {
-                parent.lines[y].setResult(scanner.nextDouble());
+                parent.lines[y].setResult(parent.scanner.nextDouble());
             } else {
-                vals[x] = scanner.nextDouble();
+                vals[x] = parent.scanner.nextDouble();
                 double[] shortVals = new double[this.varCount];
                 for (int s = 0; s < this.varCount; s++) {
                     if (s <= x) {
@@ -625,7 +637,7 @@ public class GaussianAlgorithm {
         Scanner scanner = new Scanner(System.in);
         GaussianSystem system = new GaussianSystem();
         system.init();
-        system.input.setScanner(scanner);
+        system.setScanner(scanner);
         system.input.start();
 
         System.out.print("\n");
