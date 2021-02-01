@@ -13,14 +13,19 @@ import java.util.Scanner;
 
 class GaussianUtilities {
     static void clearConsole() {
-        /*
-         * try { final String os = System.getProperty("os.name");
-         * 
-         * if (os.contains("Windows")) { // TODO: check compatibility on windows
-         * Runtime.getRuntime().exec("cls"); } else { System.out.print("\033\143"); } }
-         * catch (final Exception e) { }
-         */
-        System.out.print("\n\nDEBUG CLEAR CONSOLE\n\n");
+
+        try {
+            final String os = System.getProperty("os.name");
+
+            if (os.contains("Windows")) { // TODO: check compatibility on windows
+                Runtime.getRuntime().exec("cls");
+            } else {
+                System.out.print("\033\143");
+            }
+        } catch (final Exception e) {
+        }
+
+        // System.out.print("\n\nDEBUG CLEAR CONSOLE\n\n");
     }
 
     static void printToDifference(int diff, String val) {
@@ -237,7 +242,7 @@ class GaussianLine {
         String resultStr = " ? ";
         if (this.loadedLen == this.values.length - 1) {
             resultStr = " x ";
-        } else if(this.loadedLen >= this.values.length){
+        } else if (this.loadedLen >= this.values.length) {
             resultStr = String.valueOf(this.result);
         }
         System.out.print(" | " + resultStr + "\n");
@@ -287,7 +292,7 @@ class GaussianSystem {
 
     void setLineCount(int i) {
         lines = new GaussianLine[i];
-        printIndex = i;
+        this.printIndex = i;
         // System.out.print("i=" + i + ";len=" + lines.length);
     }
 
@@ -358,7 +363,7 @@ class GaussianSystemInput {
     }
 
     void receiveLine(int y) {
-        System.out.println("NEW LINE");
+        System.out.println("NEW LINE INDEX: " + y);
         bufferLine.empty(this.varCount);
         double[] vals = new double[this.lineCount];
         int internLoadIndex = -2;
@@ -367,6 +372,7 @@ class GaussianSystemInput {
             GaussianUtilities.clearConsole();
             internLoadIndex++;
             bufferLine.setLoadedLen(internLoadIndex);
+            parent.prettyPrint();
             this.bufferPrint();
             System.out.print("\nx = ");
             if (this.varCount == x) {
@@ -375,7 +381,7 @@ class GaussianSystemInput {
                 vals[x] = scanner.nextDouble();
                 double[] shortVals = new double[this.varCount];
                 for (int s = 0; s < this.varCount; s++) {
-                    if(s <= x) {
+                    if (s <= x) {
                         shortVals[s] = vals[s];
                     } else {
                         shortVals[s] = 0;
@@ -395,9 +401,16 @@ class GaussianSystemInput {
         this.receiveStandardKnowledge();
         parent.setLineCount(this.lineCount);
         parent.empty();
+        parent.prettyPrint();
+        parent.setPrintIndex(-1);
+        int internPrintIndex = -1;
         for (int y = 0; y < this.lineCount; y++) {
+            internPrintIndex++;
             this.receiveLine(y);
+            parent.setPrintIndex(internPrintIndex);
         }
+        GaussianUtilities.clearConsole();
+        parent.prettyPrint();
     }
 }
 
