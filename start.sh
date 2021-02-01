@@ -1,0 +1,3 @@
+javac GaussianAlgorithm.java
+java GaussianAlgorithm
+jar cfve release.jar GaussianAlgorithm GaussianAlgorithm.class GaussianAlignmentBuilder.class GaussianSolvedItem.class GaussianSolvedItemList.class GaussianSystem.class GaussianSystemInput.class GaussianUtilities.class GaussianAlignment.class GaussianLine.class
