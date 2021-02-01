@@ -264,7 +264,8 @@ class GaussianLine {
 
     boolean isLast() {
         boolean _result = true;
-        for (int i = 1; i < this.values.length; i++) {
+        // 0a+0b+xc=d
+        for (int i = 0; i < this.values.length - 1; i++) {
             if (this.values[i] == 0) {
                 _result = false;
                 break;
@@ -280,6 +281,11 @@ class GaussianSystem {
     GaussianLine[] lines;
     GaussianSystemInput input;
 
+    GaussianSolvedItemList solved;
+
+    int solveIndex = 0;
+    int cW = 0;
+
     int printIndex = -1;
 
     void init() {
@@ -292,9 +298,8 @@ class GaussianSystem {
     }
 
     void setLineCount(int i) {
-        lines = new GaussianLine[i];
+        this.lines = new GaussianLine[i];
         this.printIndex = i;
-        // System.out.print("i=" + i + ";len=" + lines.length);
     }
 
     void setCoords(int x, int y, double v) {
@@ -346,6 +351,63 @@ class GaussianSystem {
             this.lines[y].empty(this.lines.length);
         }
     }
+
+    void effectivePrint() {
+        this.cW = this.prettyPrint(this.cW);
+        GaussianUtilities.clearConsole();
+        this.prettyPrint(this.cW);
+    }
+
+    void solveFast() {
+        GaussianLine lastLine = this.lines[this.lines.length - 1];
+        GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
+        builder.setPreparableAlignmentLine(lastLine);
+        // builder: automatic detection of fast mode bc result set is not given
+        GaussianAlignment alignment = builder.build();
+        double alignmentResult = alignment.solve();
+        GaussianSolvedItem solvedItem = GaussianSolvedItem.build(this.lines.length - 1, alignmentResult);
+        this.solved.addSolvedItem(solvedItem);
+    }
+
+    void solute() {
+        System.out.println("SOLUTE!");
+        this.solveFast();
+        // test for solving first var
+        for (int i = this.lines.length - 2; i >= 0; i--) {
+            GaussianLine line = this.lines[i];
+            GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
+            builder.setPreparableAlignmentLine(line);
+            builder.setPreparedSolvedItemList(this.solved);
+            GaussianAlignment alignment = builder.build();
+            GaussianSolvedItem solvedItem = GaussianSolvedItem.build(i, alignment.solve());
+            this.solved.addSolvedItem(solvedItem);
+        }
+        System.out.println("SOLVE ITEMS LEN=" + this.solved.rawList.size());
+    }
+
+    void ready() {
+        for (int y = 0; y < this.lines.length; y++) {
+            for (int r = y + 1; r < this.lines.length; r++) {
+                if (this.getCoords(y, r) != 0.0D) {
+                    this.lines[r] = this.lines[r].multiplyBy(this.getCoords(y, y) / this.getCoords(y, r));
+                } else {
+                    this.solute();
+                    return;
+                }
+                this.lines[r].prettyPrint();
+                this.lines[y].prettyPrint();
+                System.out.println("-");
+                this.lines[r].prettyPrint();
+                GaussianLine nL = this.lines[y].sub(this.lines[r]);
+                nL.prettyPrint();
+                this.lines[r] = nL;
+            }
+            System.out.println("---------");
+            this.effectivePrint();
+        }
+        this.lines[this.lines.length - 1].isLast();
+        this.solute();
+    }
 }
 
 class GaussianSystemInput {
@@ -364,11 +426,11 @@ class GaussianSystemInput {
         }
     }
 
-    public void setParent(GaussianSystem parent) {
+    void setParent(GaussianSystem parent) {
         this.parent = parent;
     }
 
-    public void setScanner(Scanner scanner) {
+    void setScanner(Scanner scanner) {
         this.scanner = scanner;
     }
 
@@ -390,8 +452,7 @@ class GaussianSystemInput {
             internLoadIndex++;
             bufferLine.setLoadedLen(internLoadIndex);
             this.bufferPrint();
-            // seams useless but in real changes the effective CW if value change and by
-            // this is useful
+            // seams useless but it in fact can change the effective CW
             GaussianUtilities.clearConsole();
             this.setEffectiveCW(parent.prettyPrint(this.cW));
             this.bufferPrint();
@@ -432,6 +493,7 @@ class GaussianSystemInput {
         }
         GaussianUtilities.clearConsole();
         parent.prettyPrint(this.cW);
+        parent.ready();
     }
 }
 
