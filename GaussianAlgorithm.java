@@ -234,9 +234,11 @@ class GaussianLine {
                 System.out.print("  ");
             }
         }
-        String resultStr = String.valueOf(this.result);
-        if (this.values.length == this.loadedLen) {
-            resultStr = "x";
+        String resultStr = " ? ";
+        if (this.loadedLen == this.values.length - 1) {
+            resultStr = " x ";
+        } else if(this.loadedLen >= this.values.length){
+            resultStr = String.valueOf(this.result);
         }
         System.out.print(" | " + resultStr + "\n");
     }
@@ -279,8 +281,13 @@ class GaussianSystem {
         input.setParent(this);
     }
 
+    public void setPrintIndex(int printIndex) {
+        this.printIndex = printIndex;
+    }
+
     void setLineCount(int i) {
         lines = new GaussianLine[i];
+        printIndex = i;
         // System.out.print("i=" + i + ";len=" + lines.length);
     }
 
@@ -354,21 +361,22 @@ class GaussianSystemInput {
         System.out.println("NEW LINE");
         bufferLine.empty(this.varCount);
         double[] vals = new double[this.lineCount];
-        bufferLine.setLoadedLen(0);
+        int internLoadIndex = -2;
+        bufferLine.setLoadedLen(internLoadIndex);
         for (int x = 0; x < this.varCount + 1; x++) {
             GaussianUtilities.clearConsole();
-            bufferLine.setLoadedLen(bufferLine.loadedLen + 1);
+            internLoadIndex++;
+            bufferLine.setLoadedLen(internLoadIndex);
             this.bufferPrint();
             System.out.print("\nx = ");
             if (this.varCount == x) {
                 parent.lines[y].setResult(scanner.nextDouble());
             } else {
                 vals[x] = scanner.nextDouble();
-                System.out.println(vals);
                 double[] shortVals = new double[this.varCount];
                 for (int s = 0; s < this.varCount; s++) {
                     if(s <= x) {
-                        shortVals[s] = vals[x];
+                        shortVals[s] = vals[s];
                     } else {
                         shortVals[s] = 0;
                     }
