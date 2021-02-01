@@ -207,14 +207,15 @@ class GaussianAlignmentBuilder {
         return this.preparedSolvedItemList.calcStep(preparableAlignmentLine);
     }
 
-    GaussianAlignment build() {
+    GaussianAlignment build(int leftSideIndex) {
         GaussianAlignment newAlignment = new GaussianAlignment();
         double leftSideV, rightSideV = this.preparableAlignmentLine.result;
         if (this.fast == true) {
             leftSideV = this.purgeZeros();
         } else {
             double filled = this.fillKnown();
-            leftSideV = this.preparableAlignmentLine.values[preparedSolvedItemList.index + 1];
+            // preparedSolvedItemList.index
+            leftSideV = this.preparableAlignmentLine.values[leftSideIndex];
             rightSideV -= filled;
         }
         newAlignment.setParticipants(leftSideV, rightSideV);
@@ -463,7 +464,7 @@ class GaussianSystem {
         GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
         builder.setPreparableAlignmentLine(lastLine);
         // INFO: automatic detection of fast mode since result set is not given
-        GaussianAlignment alignment = builder.build();
+        GaussianAlignment alignment = builder.build(this.lines.length - 1);
         double alignmentResult = alignment.solve();
         System.out.println("ALIGN RES: " + alignmentResult);
         GaussianSolvedItem solvedItem = GaussianSolvedItem.build(this.lines.length - 1, alignmentResult);
@@ -482,8 +483,9 @@ class GaussianSystem {
             line.print();
             System.out.print("SOLVED ITEMS ");
             this.solved.print();
-            GaussianAlignment alignment = builder.build();
-            GaussianSolvedItem solvedItem = GaussianSolvedItem.build(i, alignment.solve());
+            GaussianAlignment alignment = builder.build(i);
+            double solveResult = alignment.solve();
+            GaussianSolvedItem solvedItem = GaussianSolvedItem.build(i, solveResult);
             this.solved.addSolvedItem(solvedItem);
         }
         System.out.println("SOLVE ITEMS LEN=" + this.solved.rawList.size());
