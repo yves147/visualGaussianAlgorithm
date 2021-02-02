@@ -11,28 +11,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-class GaussianFraction {
-
-    static String fraction(double x) {
-        String a = "" + x;
-        String spilts[] = a.split("\\.");
-        int b = spilts[1].length();
-        int denominator = (int) Math.pow(10, b);
-        int numerator = (int) (x * denominator);
-        int gcd = getGCD(numerator, denominator);
-        String fraction = "" + numerator / gcd + "/" + denominator / gcd;
-        return fraction;
-    }
-
-    static int getGCD(int n1, int n2) {
-        if (n2 == 0) {
-            return n1;
-        }
-        return getGCD(n2, n1 % n2);
-    }
-
-}
-
 /**
  * Extra utilities in global instance
  */
@@ -76,8 +54,28 @@ class GaussianUtilities {
         return Math.round(inp * 10000.0) / 10000.0;
     }
 
-    static String beautiful(double inp){
-        return GaussianFraction.fraction(inp);
+    static String fraction(double x) {
+        String a = "" + x;
+        String spilts[] = a.split("\\.");
+        int b = spilts[1].length();
+        int denominator = (int) Math.pow(10, b);
+        int numerator = (int) (x * denominator);
+        int gcd = getGCD(numerator, denominator);
+        if (denominator / gcd == 0) {
+            return "";
+        }
+        return "" + numerator / gcd + "/" + denominator / gcd;
+    }
+
+    static int getGCD(int n1, int n2) {
+        if (n2 == 0) {
+            return n1;
+        }
+        return getGCD(n2, n1 % n2);
+    }
+
+    static String beautiful(double inp) {
+        return fraction(round(inp));
     }
 }
 
