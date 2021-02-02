@@ -11,6 +11,28 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+class GaussianFraction {
+
+    static String fraction(double x) {
+        String a = "" + x;
+        String spilts[] = a.split("\\.");
+        int b = spilts[1].length();
+        int denominator = (int) Math.pow(10, b);
+        int numerator = (int) (x * denominator);
+        int gcd = getGCD(numerator, denominator);
+        String fraction = "" + numerator / gcd + "/" + denominator / gcd;
+        return fraction;
+    }
+
+    static int getGCD(int n1, int n2) {
+        if (n2 == 0) {
+            return n1;
+        }
+        return getGCD(n2, n1 % n2);
+    }
+
+}
+
 /**
  * Extra utilities in global instance
  */
@@ -45,9 +67,17 @@ class GaussianUtilities {
         printToDifference(diff, " ");
     }
 
-    static void wait(Scanner scanner){
+    static void wait(Scanner scanner) {
         scanner.nextLine();
         scanner.nextLine();
+    }
+
+    static double round(double inp) {
+        return Math.round(inp * 10000.0) / 10000.0;
+    }
+
+    static String beautiful(double inp){
+        return GaussianFraction.fraction(inp);
     }
 }
 
@@ -274,9 +304,9 @@ class GaussianLine {
 
     void print() {
         for (int i = 0; i < this.values.length; i++) {
-            System.out.print("x" + i + "=" + this.values[i] + ";");
+            System.out.print("x" + i + "=" + GaussianUtilities.beautiful(this.values[i]) + ";");
         }
-        System.out.print("r=" + this.result + "\n");
+        System.out.print("r=" + GaussianUtilities.beautiful(this.result) + "\n");
     }
 
     int prettyPrint(int biggestLen) {
@@ -292,7 +322,7 @@ class GaussianLine {
                     strVal = " ? ";
                 }
             } else {
-                strVal = String.valueOf(this.values[i]);
+                strVal = GaussianUtilities.beautiful(this.values[i]);
             }
             prettyItems[i] = strVal;
             if (strVal.length() > biggestLen)
@@ -309,7 +339,7 @@ class GaussianLine {
         if (this.loadedLen == this.values.length - 1) {
             resultStr = " x ";
         } else if (this.loadedLen >= this.values.length) {
-            resultStr = String.valueOf(this.result);
+            resultStr = GaussianUtilities.beautiful(this.result);
         }
         System.out.print(" | " + resultStr + "\n");
         return biggestLen;
@@ -465,7 +495,7 @@ class GaussianSystem {
         builder.setPreparableAlignmentLine(lastLine);
         // INFO: automatic detection of fast mode since result set is not given
         GaussianAlignment alignment = builder.build(this.lines.length - 1);
-        double alignmentResult = alignment.solve();
+        double alignmentResult = GaussianUtilities.round(alignment.solve());
         System.out.println("ALIGN RES: " + alignmentResult);
         GaussianSolvedItem solvedItem = GaussianSolvedItem.build(this.lines.length - 1, alignmentResult);
         this.solved.addSolvedItem(solvedItem);
@@ -484,7 +514,7 @@ class GaussianSystem {
             System.out.print("SOLVED ITEMS ");
             this.solved.print();
             GaussianAlignment alignment = builder.build(i);
-            double solveResult = alignment.solve();
+            double solveResult = GaussianUtilities.round(alignment.solve());
             GaussianSolvedItem solvedItem = GaussianSolvedItem.build(i, solveResult);
             this.solved.addSolvedItem(solvedItem);
         }
