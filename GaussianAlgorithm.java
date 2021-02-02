@@ -75,7 +75,7 @@ class GaussianUtilities {
     }
 
     static String beautiful(double inp) {
-        return fraction(round(inp));
+        return String.valueOf(round(inp));
     }
 }
 
@@ -272,7 +272,7 @@ class GaussianLine {
         this.result = res;
     }
 
-    public void setLoadedLen(int loadedLen) {
+    void setLoadedLen(int loadedLen) {
         this.loadedLen = loadedLen;
     }
 
@@ -388,27 +388,27 @@ class GaussianSystem {
     Scanner scanner;
 
     // #region AUTO_META
-    public void setHold(boolean hold) {
+    void setHold(boolean hold) {
         this.hold = hold;
     }
 
-    public void setInput(GaussianSystemInput input) {
+    void setInput(GaussianSystemInput input) {
         this.input = input;
     }
 
-    public void setLines(GaussianLine[] lines) {
+    void setLines(GaussianLine[] lines) {
         this.lines = lines;
     }
 
-    public void setSolveIndex(int solveIndex) {
+    void setSolveIndex(int solveIndex) {
         this.solveIndex = solveIndex;
     }
 
-    public void setSolved(GaussianSolvedItemList solved) {
+    void setSolved(GaussianSolvedItemList solved) {
         this.solved = solved;
     }
 
-    public void setcW(int cW) {
+    void setcW(int cW) {
         this.cW = cW;
     }
     // #endregion
