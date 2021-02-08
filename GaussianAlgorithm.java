@@ -502,6 +502,7 @@ class GaussianSystem {
     void solute() {
         System.out.println("SOLUTE!");
         this.solveFast();
+        GaussianUtilities.clearConsole();
         for (int i = this.lines.length - 2; i >= 0; i--) {
             GaussianLine line = this.lines[i];
             GaussianAlignmentBuilder builder = new GaussianAlignmentBuilder();
@@ -539,6 +540,7 @@ class GaussianSystem {
             }
             System.out.println("---------");
             GaussianUtilities.wait(this.scanner);
+            GaussianUtilities.clearConsole();
             this.effectivePrint();
         }
         this.lines[this.lines.length - 1].isLast();
